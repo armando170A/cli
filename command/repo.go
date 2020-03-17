@@ -35,6 +35,7 @@ func init() {
 	repoForkCmd.Flags().Lookup("remote").NoOptDefVal = "true"
 
 	repoCmd.AddCommand(repoViewCmd)
+	repoViewCmd.Flags().BoolP("web", "w", false, "Open repository in browser")
 }
 
 var repoCmd = &cobra.Command{
@@ -78,9 +79,9 @@ With no argument, creates a fork of the current repository. Otherwise, forks the
 var repoViewCmd = &cobra.Command{
 	Use:   "view [<repository>]",
 	Short: "View a repository in the browser",
-	Long: `View a GitHub repository in the browser.
+	Long: `View a GitHub repository.
 
-With no argument, the repository for the current directory is opened.`,
+With no argument, the repository for the current directory is displayed.`,
 	RunE: repoView,
 }
 
@@ -386,6 +387,7 @@ var Confirm = func(prompt string, result *bool) error {
 
 func repoView(cmd *cobra.Command, args []string) error {
 	ctx := contextForCommand(cmd)
+
 	var toView ghrepo.Interface
 	if len(args) == 0 {
 		var err error
@@ -418,6 +420,8 @@ func repoView(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// TODO implement terminal view / --web support
 
 	openURL := fmt.Sprintf("https://github.com/%s", ghrepo.FullName(toView))
 	fmt.Fprintf(cmd.ErrOrStderr(), "Opening %s in your browser.\n", displayURL(openURL))
